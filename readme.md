@@ -63,11 +63,11 @@ Follow these steps to install and run NodeMyAdmin:
 
 ## Screenshots
 
-Add screenshots of your tool in action, such as:
+![image](https://github.com/user-attachments/assets/09bb8a61-b3a7-42e5-b2a7-47b96388314f)
 
-1. Database Diagram View
-2. Table Browsing Interface
+![image](https://github.com/user-attachments/assets/2c20a647-4b64-4249-ba86-2422b57955e9)
 
+![image](https://github.com/user-attachments/assets/4bcdaf12-dd49-46e9-8e07-01239d7ae138)
 
 ## Contributing
 
