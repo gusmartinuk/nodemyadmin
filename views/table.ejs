@@ -1,0 +1,28 @@
+<div class="container">
+  <h2>Table: <%= tableName %></h2>
+  <h3>Columns</h3>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Nullable</th>
+        <th>Key</th>
+        <th>Default</th>
+        <th>Extra</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% tableStructure.columns.forEach(column => { %>
+        <tr>
+          <td><%= column.name %></td>
+          <td><%= column.type %></td>
+          <td><%= column.nullable %></td>
+          <td><%= column.key %></td>
+          <td><%= column.default %></td>
+          <td><%= column.extra %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>

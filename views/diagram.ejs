@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <style>
+    .mermaid {
+      margin: 20px auto;
+      text-align: center;
+      max-width: 90%;
+      overflow-x: auto; 
+      overflow-y: auto;
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      padding: 20px;
+      font-size: 14px;
+    }
+    svg {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">Database Diagram: <%= databaseName %></h1>
+  <div class="mermaid">
+    graph TD
+    <% tables.forEach(table => { %>
+      subgraph <%= table.table %>["<b style='font-size: 16px;'> <%= table.table %> </b>"]
+        style <%= table.table %> fill:#D9E8FB,stroke:#0056A3,stroke-width:2px;
+        <%= table.table %>_columns[["<%= table.structure.columns.map(column => (column.key === 'PRI' ? '🔑' : '') + column.name + ': ' + column.type).join('<br>') %>"]]
+      end      
+      <% table.structure.foreignKeys.forEach(fk => { %>
+        <%= table.table %>_columns -- <span title="<%= fk.column %> to <%= fk.referencedColumn %>"><b><i>[<%= fk.column %>]</i></b></span> --> <%= fk.referencedTable %>_columns;
+      <% }); %>
+      
+    <% }); %>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "neutral",
+      look: "handDrawn",
+      themeVariables: {
+        primaryColor: '#D9E8FB',
+        primaryBorderColor: '#0056A3',
+        primaryTextColor: '#000000',
+      },
+      flowchart: {
+        useMaxWidth: true,
+        nodeSpacing: 30,
+        rankSpacing: 50,
+      },
+    });
+  </script>
+</body>
+</html>

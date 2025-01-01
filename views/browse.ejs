@@ -1,0 +1,49 @@
+<div class="container">
+  <h1>Table: <%= tableName %></h1>
+  <table id="browseTable" class="table table-striped">
+    <thead>
+      <tr>
+        <% columnNames.forEach(columnName => { %>
+          <th><%= columnName %></th>
+        <% }); %>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- To be loaded from the server -->
+    </tbody>
+  </table>
+</div>
+
+<script>
+  $(document).ready(function () {
+    const columns = [];
+    <% if (columnNames && columnNames.length > 0) { %>
+      <% columnNames.forEach(columnName => { %>
+        columns.push({ "data": "<%= columnName %>" });
+      <% }); %>
+    <% } %>
+
+    if (columns.length > 0) {
+      $('#browseTable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+          "url": "/browse-data/<%= tableName %>",
+          "type": "POST",
+          "data": function (d) {
+            return JSON.stringify(d);
+          },
+          "contentType": "application/json",
+        },
+      "columns": columns,
+      "pageLength": 10, // Default page length
+      "lengthMenu": [5, 10, 25, 50], // Page length options
+      "searching": true, // Instant search
+      "ordering": true, // Sorting
+      "paging": true, // Pagination
+      });
+    } else {
+      $('#browseTable tbody').append('<tr><td colspan="100%">No data available in table.</td></tr>');
+    }
+  });
+</script>
