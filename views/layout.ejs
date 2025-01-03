@@ -25,9 +25,12 @@
 </head>
 <body>
   <div class="sidebar">
-    <h4 title="database schema name"><%= databaseName %></h4>
-    <a href="diagram" target="_blank" class="btn btn-primary btn-sm" >Diagram</a>
+    <h5 title="database schema name">Database:</h5>
+    <select id="databaseList" class="form-select mb-3" onchange="loadTableList(this.value)">
+      <!-- Database list will be dynamically loaded here -->
+    </select>
 
+    <a href="diagram" target="_blank" class="btn btn-primary btn-sm" >Diagram</a>
     <h5>Tables</h5>    
     <ul id="tableList" class="list-group">
       <!-- Table list will be dynamically loaded here -->
@@ -44,38 +47,39 @@
   <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
   <script>
-  $(document).ready(function () {
-    // Fetch the list of tables
-    $.get('/tables-data', function (data) {
+
+  // Load table list  
+  function loadTableList(selectedDatabase) {
+    $.get(`/tables-data?database=${selectedDatabase}`, function (data) {
       if (data && data.data) {
+        $('#tableList').empty(); // Clear the existing list
         data.data.forEach(table => {
-          $('#tableList').append(`
-            <li class="list-group-item">
-              <span>${table.name}</span>
-              <div class="mt-2">
-                <a href="#" class="btn btn-primary btn-sm table-browse" data-table="${table.name}">Browse</a>
-                <a href="#" class="btn btn-secondary btn-sm table-details" data-table="${table.name}">Details</a>
-              </div>
-            </li>
-          `);
+          $('#tableList').append(
+            '<li class="list-group-item">' +
+              '<a href="#" class="table-link" onclick="loadBrowseView(\'' + table.name + '\')">' + table.name + '</a>' +
+            '</li>'
+          );
         });
       }
     });
-  
-    // Unbind previous handlers and bind "Browse" click handler
-    $('#tableList').off('click', '.table-browse').on('click', '.table-browse', function (e) {
-      e.preventDefault();
-      const tableName = $(this).data('table');
-      loadBrowseView(tableName);
+  }
+
+
+  $(document).ready(function () {
+
+    // Fetch the list of databases
+    $.get('/databases-data', function (data) {
+      if (data && data.data) {
+        data.data.forEach(database => {
+          $('#databaseList').append(
+            `<option value="${database.name}" ${database.name === '<%= databaseName %>' ? 'selected' : ''}>${database.name}</option>`
+          );
+        });
+      }
     });
-  
-    // Unbind previous handlers and bind "Details" click handler
-    $('#tableList').off('click', '.table-details').on('click', '.table-details', function (e) {
-      e.preventDefault();
-      const tableName = $(this).data('table');
-      loadTableDetails(tableName);
-    });
-  });
+  loadTableList('<%= databaseName %>'); // Load table list for the default database
+});
+
   
   // Browse view loader
   function loadBrowseView(tableName) {

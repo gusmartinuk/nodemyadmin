@@ -1,12 +1,12 @@
 const mysql = require('mysql2/promise');
 
-async function connect() {
+async function connect(database) {
   try {
     const connection = await mysql.createConnection({
       host: process.env.MYSQL_HOST,
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
+      database: database,
     });    
     return connection;
   } catch (err) {
@@ -37,6 +37,17 @@ async function listTables(connection) {
   }
 }
 
+async function listDatabases(connection) {
+  try {
+    const [rows] = await connection.execute('SHOW DATABASES');
+    const databaseNames = rows.map(row => row.Database);
+    return databaseNames;
+  } catch (err) {
+    console.error('Error during database listing:', err);
+    throw err;
+  }
+}
+
 async function listViews(connection) {
   try {
     const [rows] = await connection.execute("SHOW FULL TABLES WHERE TABLE_TYPE LIKE 'VIEW'");
@@ -47,6 +58,8 @@ async function listViews(connection) {
     throw err;
   }
 }
+
+
 
 async function listTableStructure(connection, tableName) {
   try {
@@ -85,4 +98,5 @@ module.exports = {
   listTables,
   listViews,
   listTableStructure,
+  listDatabases
 };

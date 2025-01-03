@@ -9,6 +9,7 @@
 - **Table Browsing**: Easily browse and filter table data with support for pagination, sorting, and searching.
 - **Column Details**: Inspect the structure of each table, including primary keys, foreign keys, and data types.
 - **Secure**: Utilizes environment variables for sensitive configuration.
+- **Database Selection**: Easily switch between multiple databases from the web interface.
 
 ## Installation
 
@@ -94,7 +95,6 @@ Contributions are welcome! To get started:
 
 Future improvements and features include:
 - **Authentication**: Secure login and user management.
-- **Database Selection**: Easily switch between different databases within the same MySQL server.
 - **Theme Selection for Diagrams**: Customize the appearance of your database diagrams using Mermaid's built-in themes.
 - **Documentation**: Comprehensive user guide and API documentation. 
 - **Support for Multiple Databases**: Add PostgreSQL and SQLite compatibility.

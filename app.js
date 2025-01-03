@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { connect, disconnect, listTables, listTableStructure } = require('./dblib');
+const { connect, disconnect, listTables, listTableStructure, listDatabases } = require('./dblib');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -9,14 +9,16 @@ app.use(express.urlencoded({ extended: true })); // For URL-encoded requests
 
 app.locals.databaseName = process.env.MYSQL_DATABASE;
 
+
 const port = 3000;  // Port number
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
+
 app.get('/', async (req, res) => {
   try {
-    const connection = await connect();
+    const connection = await connect(app.locals.databaseName);
     const tables = await listTables(connection);
     await disconnect(connection);
 
@@ -30,7 +32,7 @@ app.get('/', async (req, res) => {
 app.get('/table/:tableName', async (req, res) => {
   try {
     const tableName = req.params.tableName;
-    const connection = await connect();
+    const connection = await connect(app.locals.databaseName);
     const tableStructure = await listTableStructure(connection, tableName);
     await disconnect(connection);
 
@@ -44,10 +46,11 @@ app.get('/table/:tableName', async (req, res) => {
 
 app.get('/tables-data', async (req, res) => {
   try {
-    const connection = await connect();
+    const selectedDatabase = req.query.database;
+    app.locals.databaseName = selectedDatabase;
+    const connection = await connect(selectedDatabase);
     const tables = await listTables(connection);
     await disconnect(connection);
-
     const data = {
       "draw": parseInt(req.query.draw),
       "recordsTotal": tables.length,
@@ -61,10 +64,29 @@ app.get('/tables-data', async (req, res) => {
   }
 });
 
+app.get('/databases-data', async (req, res) => {
+  try {
+    const connection = await connect(app.locals.databaseName);
+    const databases = await listDatabases(connection);    
+    await disconnect(connection);
+     const data = {
+      "draw": parseInt(req.query.draw),
+      "recordsTotal": databases.length,
+      "recordsFiltered": databases.length,
+      "data": databases.map(database => ({ name: database }))
+    };
+    res.json(data);
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).send('Error occurred while fetching data.');
+  }
+});
+
+
 app.get('/browse/:tableName', async (req, res) => {
   try {
     const tableName = req.params.tableName;
-    const connection = await connect();
+    const connection = await connect(app.locals.databaseName);
 
     // Get the table structure
     const tableStructure = await listTableStructure(connection, tableName);
@@ -93,7 +115,7 @@ app.post('/browse-data/:tableName', async (req, res) => {
     const tableName = req.params.tableName;
     const { start, length, search, order } = req.body;
 
-    const connection = await connect();
+    const connection = await connect(app.locals.databaseName);
 
     // Count of total records
     const [totalRows] = await connection.execute(`SELECT COUNT(*) AS count FROM ${tableName}`);
@@ -144,7 +166,7 @@ app.post('/browse-data/:tableName', async (req, res) => {
 
 app.get('/diagram', async (req, res) => {
   try {
-    const connection = await connect();
+    const connection = await connect(app.locals.databaseName);
     const tables = await listTables(connection);
 
     const tableDetails = [];
@@ -168,3 +190,5 @@ app.get('/diagram', async (req, res) => {
 app.listen(port, () => {
   console.log(`Application working on ${port} port.`);
 });
+
+module.exports = app;
