@@ -43,9 +43,66 @@
       "searching": true, // Instant search
       "ordering": true, // Sorting
       "paging": true, // Pagination
+      "select": true,      
       });
+    $('#browseTable_wrapper .dataTables_filter').append('<button id="addButton" class="btn btn-primary ml-2">Add</button>');    
+    
     } else {
       $('#browseTable tbody').append('<tr><td colspan="100%">No data available in table.</td></tr>');
     }
+  });
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addModalLabel">Add New Entry</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addForm">
+          <% columnNames.forEach(columnName => { %>
+            <div class="form-group">
+              <label for="<%= columnName %>"><%= columnName %></label>
+              <input type="text" class="form-control" id="<%= columnName %>" name="<%= columnName %>">
+            </div>
+          <% }); %>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveButton">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $('#addButton').on('click', function () {
+      var addModal = new bootstrap.Modal(document.getElementById('addModal')); 
+      addModal.show();
+    });
+
+    $('#saveButton').on('click', function () {
+      const formData = $('#addForm').serialize();
+      $.ajax({
+        url: '/add-data/<%= tableName %>',
+        type: 'POST',
+        data: formData,
+        success: function () {
+          var addModal = bootstrap.Modal.getInstance(document.getElementById('addModal'));
+          addModal.hide();
+          $('#browseTable').DataTable().ajax.reload();
+        },
+        error: function (error) {
+          alert('Error adding data');
+        }
+      });
+    });
   });
 </script>
